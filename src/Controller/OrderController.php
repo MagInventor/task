@@ -22,12 +22,14 @@ class OrderController extends AbstractController
         $clientGroup = $this->getClientGroups($orders);
 
         $statusGroup = $this->getStatusCounts($data_csv, $data_json, $data_ldif);
+
+        $consonantCount = $this->getConsonantCount($orders);
         echo '<pre>';
         // print_r($data_csv);
         // print_r($data_json);
         // print_r($data_ldif);
         // print_r($orders);
-        print_r($statusGroup);
+        print_r($consonantCount);
         echo '</pre>';
 
         return $this->render('order/index.html.twig', [
@@ -153,6 +155,7 @@ class OrderController extends AbstractController
                     $statusClients[$status]++;
                 } 
             }
+
             return array_slice($statusClients, 0, 1);
         }
 
@@ -160,5 +163,21 @@ class OrderController extends AbstractController
         $bigStatus['JSON'] = getBigStatus($data_json['data']);
         $bigStatus['LDIF'] = getBigStatus($data_ldif['data']);
         return $bigStatus;
+    }
+
+    function getConsonantCount($orders) {
+        $consonants = array('b', 'c', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm', 'n', 'p', 'q', 'r', 's', 't', 'v', 'w', 'x', 'y', 'z');
+        $count = 0;
+
+        for ($i = 0; $i < count($orders); $i++) {
+            $customer = trim($orders[$i]['Customer']);
+            for ($j = 0; $j < strlen($customer); $j++) {
+                if (in_array($customer[$j], $consonants)) {
+                    $count++;
+                }
+            }
+        }
+
+        return $count;
     }
 }
