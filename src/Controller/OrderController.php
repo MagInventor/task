@@ -29,11 +29,15 @@ class OrderController extends AbstractController
         // print_r($data_json);
         // print_r($data_ldif);
         // print_r($orders);
-        print_r($consonantCount);
+        print_r($top30Orders);
         echo '</pre>';
 
         return $this->render('order/index.html.twig', [
             'controller_name' => 'OrderController',
+            'top30Orders' => $top30Orders,
+            'clientGroup' => $clientGroup,
+            'statusGroup' => $statusGroup,
+            'consonantCount' => $consonantCount,
         ]);
     }
 

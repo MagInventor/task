@@ -9,12 +9,15 @@
 </style>
 
 <div class="example-wrapper">
-    <h1>Hello {{ controller_name }}! ✅</h1>
+    <h1>Hello HR-manager! </h1>
 
-    This friendly message is coming from:
+
+    This is results of the task:
     <ul>
-        <li>Your controller at <code><a href="{{ '/home/user/Загрузки/test/app/task/src/Controller/OrderController.php'|file_link(0) }}">src/Controller/OrderController.php</a></code></li>
-        <li>Your template at <code><a href="{{ '/home/user/Загрузки/test/app/task/templates/order/index.html.twig'|file_link(0) }}">templates/order/index.html.twig</a></code></li>
+        <li><p>Top 30 Orders: {{}}</p></li>
+        <li><p>Client group: {{}}</p></li>
+        <li><p>Status group: {{}}</p></li>
+        <li><p>Consonant count: {{ consonantCount }} </p></li>
     </ul>
 </div>
 {% endblock %}
