@@ -18,11 +18,14 @@ class OrderController extends AbstractController
         $orders = $this->arrayMerge($data_csv, $data_json, $data_ldif);
 
         $top30Orders = $this->getTop30Orders($orders);
+
+        $clientGroup = $this->getClientGroups($orders);
         echo '<pre>';
         // print_r($data_csv);
         // print_r($data_json);
         // print_r($data_ldif);
-        print_r($top30Orders);
+        // print_r($orders);
+        print_r($clientGroup);
         echo '</pre>';
 
         return $this->render('order/index.html.twig', [
@@ -115,5 +118,23 @@ class OrderController extends AbstractController
         arsort($salesCount);
         $result = array_slice($salesCount, 0, 30);
         return $result; 
+    }
+
+    function getClientGroups($orders) {
+        $ordersCount = [];
+        // $groupsCount = [];
+
+        for ($i = 0; $i < count($orders); $i++) {
+            $client_group = $orders[$i]['Country'];
+            if (empty($ordersCount[$client_group])) {
+                $ordersCount[$client_group] = 1;
+            } else {
+                $ordersCount[$client_group]++;
+            } 
+        }
+        arsort($ordersCount);
+        // $result = array_slice($orderCount, 0, 1);
+
+        return $ordersCount;
     }
 }
