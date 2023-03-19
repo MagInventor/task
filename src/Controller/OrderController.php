@@ -16,11 +16,13 @@ class OrderController extends AbstractController
         $data_ldif = $this->loadData('../public/data/dataFeb-2-2017.ldif');
 
         $orders = $this->arrayMerge($data_csv, $data_json, $data_ldif);
+
+        $top30Orders = $this->getTop30Orders($orders);
         echo '<pre>';
         // print_r($data_csv);
         // print_r($data_json);
         // print_r($data_ldif);
-        print_r($orders);
+        print_r($top30Orders);
         echo '</pre>';
 
         return $this->render('order/index.html.twig', [
@@ -90,6 +92,28 @@ class OrderController extends AbstractController
         $result['cols'] = $arr1['cols'];
         $result['data'] = array_merge($arr1['data'], $arr2['data'], $arr3['data']);
 
-        return $result;
+        for ($i = 0; $i < count($result['data']); $i++) {
+            for ($j = 0; $j < count($result['data'][$i]); $j++) {
+                $newResult[$i][$result['cols'][$j]] = $result['data'][$i][$j];
+            }
+        }
+        return $newResult;
+    }
+
+    function getTop30Orders($orders) {
+        $salesCount = [];
+
+        for ($i = 0; $i < count($orders); $i++) {
+            $medicine_name = $orders[$i]['Order'];
+            if (empty($salesCount[$medicine_name])) {
+                $salesCount[$medicine_name] = 1;
+            } else {
+                $salesCount[$medicine_name]++;
+            } 
+        }
+
+        arsort($salesCount);
+        $result = array_slice($salesCount, 0, 30);
+        return $result; 
     }
 }
