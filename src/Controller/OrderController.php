@@ -20,12 +20,14 @@ class OrderController extends AbstractController
         $top30Orders = $this->getTop30Orders($orders);
 
         $clientGroup = $this->getClientGroups($orders);
+
+        $statusGroup = $this->getStatusCounts($data_csv, $data_json, $data_ldif);
         echo '<pre>';
         // print_r($data_csv);
         // print_r($data_json);
         // print_r($data_ldif);
         // print_r($orders);
-        print_r($clientGroup);
+        print_r($statusGroup);
         echo '</pre>';
 
         return $this->render('order/index.html.twig', [
@@ -136,5 +138,27 @@ class OrderController extends AbstractController
         // $result = array_slice($orderCount, 0, 1);
 
         return $ordersCount;
+    }
+
+    function getStatusCounts($data_csv, $data_json, $data_ldif) {
+        $statusCounts = [];
+        $statusClients = [];
+
+        function getBigStatus($data) {
+            for ($i = 0; $i < count($data); $i++) {
+                $status = $data[$i][3];
+                if (empty($statusClients[$status])) {
+                    $statusClients[$status] = 1;
+                } else {
+                    $statusClients[$status]++;
+                } 
+            }
+            return array_slice($statusClients, 0, 1);
+        }
+
+        $bigStatus['CSV'] = getBigStatus($data_csv['data']);
+        $bigStatus['JSON'] = getBigStatus($data_json['data']);
+        $bigStatus['LDIF'] = getBigStatus($data_ldif['data']);
+        return $bigStatus;
     }
 }
