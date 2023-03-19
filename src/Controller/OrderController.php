@@ -14,10 +14,13 @@ class OrderController extends AbstractController
         $data_csv = $this->loadData('../public/data/dataFeb-2-2017.csv');
         $data_json = $this->loadData('../public/data/dataFeb-2-2017.json');
         $data_ldif = $this->loadData('../public/data/dataFeb-2-2017.ldif');
+
+        $orders = $this->arrayMerge($data_csv, $data_json, $data_ldif);
         echo '<pre>';
-        print_r($data_csv);
-        print_r($data_json);
-        print_r($data_ldif);
+        // print_r($data_csv);
+        // print_r($data_json);
+        // print_r($data_ldif);
+        print_r($orders);
         echo '</pre>';
 
         return $this->render('order/index.html.twig', [
@@ -78,6 +81,15 @@ class OrderController extends AbstractController
                 $result['data'][$i][$j] = explode(':', $lines[$j])[1];
             }  
         }
+        return $result;
+    }
+
+    function arrayMerge($arr1, $arr2, $arr3) {
+        $result = [];
+
+        $result['cols'] = $arr1['cols'];
+        $result['data'] = array_merge($arr1['data'], $arr2['data'], $arr3['data']);
+
         return $result;
     }
 }
