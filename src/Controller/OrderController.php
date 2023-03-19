@@ -31,13 +31,53 @@ class OrderController extends AbstractController
 
         switch($ext) {
             case 'csv':
-                return array_map('str_getcsv', file($filename));
+                return $this->convertArrCsv($filename);
             case 'json':
-                return json_decode(file_get_contents($filename), true);
+                return $this->convertArrJson($filename);
             case 'ldif':
-                return file_get_contents($filename);
+                return $this->convertArrLdif($filename);
             default:
                 return [];
         }
+    }
+
+    function convertArrCsv($filename) {
+        $data = array_map('str_getcsv', file($filename));
+
+        $cols = array_splice($data, 0, 1);
+        $result['cols'] = explode('|', $cols[0][0]);
+
+        for ($i = 0; $i < count($data); $i++) {
+            if (count($data[$i]) > 1) {
+                $data[$i][0] = array_reduce($data[$i], function($carry, $item) {
+                    return $carry.$item;
+                });
+                array_splice($data[$i], 1 , count($data[$i]));
+            }
+            $result['data'][$i]  = explode('|', $data[$i][0]);
+        }
+
+        return $result;
+    }
+
+    function convertArrJson($filename) {
+        return json_decode(file_get_contents($filename), true);
+    }
+
+    function convertArrLdif($filename) {
+        $data = file_get_contents($filename);
+        $records = explode("\n\n", $data);
+        $result = [];
+
+        for ($i = 0; $i < count($records) - 1; $i++) {
+            $lines = explode("\n", $records[$i]);
+            for ($j = 0; $j < count($lines); $j++) {
+                if (empty($result['cols'][$j])) {
+                    $result['cols'][$j] = explode(':', $lines[$j])[0];
+                }
+                $result['data'][$i][$j] = explode(':', $lines[$j])[1];
+            }  
+        }
+        return $result;
     }
 }
