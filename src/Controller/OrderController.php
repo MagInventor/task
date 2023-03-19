@@ -24,13 +24,6 @@ class OrderController extends AbstractController
         $statusGroup = $this->getStatusCounts($data_csv, $data_json, $data_ldif);
 
         $consonantCount = $this->getConsonantCount($orders);
-        echo '<pre>';
-        // print_r($data_csv);
-        // print_r($data_json);
-        // print_r($data_ldif);
-        // print_r($orders);
-        print_r($top30Orders);
-        echo '</pre>';
 
         return $this->render('order/index.html.twig', [
             'controller_name' => 'OrderController',
@@ -125,12 +118,16 @@ class OrderController extends AbstractController
 
         arsort($salesCount);
         $result = array_slice($salesCount, 0, 30);
-        return $result; 
+
+        $resultHTML = [];
+        foreach ($result as $key => $value) {
+            array_push($resultHTML, array('title' => $key, 'quantity' => $value));
+        }
+        return $resultHTML; 
     }
 
     function getClientGroups($orders) {
         $ordersCount = [];
-        // $groupsCount = [];
 
         for ($i = 0; $i < count($orders); $i++) {
             $client_group = $orders[$i]['Country'];
@@ -141,9 +138,12 @@ class OrderController extends AbstractController
             } 
         }
         arsort($ordersCount);
-        // $result = array_slice($orderCount, 0, 1);
 
-        return $ordersCount;
+        $resultHTML = [];
+        foreach ($ordersCount as $key => $value) {
+            array_push($resultHTML, array('country' => $key, 'quantity' => $value));
+        }
+        return $resultHTML[0]; 
     }
 
     function getStatusCounts($data_csv, $data_json, $data_ldif) {
@@ -166,7 +166,14 @@ class OrderController extends AbstractController
         $bigStatus['CSV'] = getBigStatus($data_csv['data']);
         $bigStatus['JSON'] = getBigStatus($data_json['data']);
         $bigStatus['LDIF'] = getBigStatus($data_ldif['data']);
-        return $bigStatus;
+        // return $bigStatus;
+        $resultHTML = [];
+        foreach ($bigStatus as $format => $value) {
+            foreach ($value as $key => $value2) {
+                array_push($resultHTML, array('format' => $format, 'status' => $key, 'quantity' => $value2));
+            }
+        }
+        return $resultHTML; 
     }
 
     function getConsonantCount($orders) {

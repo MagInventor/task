@@ -14,9 +14,42 @@
 
     This is results of the task:
     <ul>
-        <li><p>Top 30 Orders: {{}}</p></li>
-        <li><p>Client group: {{}}</p></li>
-        <li><p>Status group: {{}}</p></li>
+        <li>
+            <p>Top 30 Orders:</p>
+            <table>
+                <thead>
+                    <th>Title</th>
+                    <th>Quantity</th>
+                </thead>
+                <tbody>
+                    {% for row in top30Orders %}
+                        <tr>
+                            <td>{{ row.title }}</td>
+                            <td>{{ row.quantity }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </li>
+        <li><p>Client group: {{ clientGroup.country}} {{ clientGroup.quantity }}</p></li>
+        <li><p>Status group: </p>
+            <table>
+                <thead>
+                    <th>Format</th>
+                    <th>Status</th>
+                    <th>Quantity</th>
+                </thead>
+                <tbody>
+                    {% for row in statusGroup %}
+                        <tr>
+                            <td>{{ row.format }}</td>
+                            <td>{{ row.status }}</td>
+                            <td>{{ row.quantity }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </li>
         <li><p>Consonant count: {{ consonantCount }} </p></li>
     </ul>
 </div>
