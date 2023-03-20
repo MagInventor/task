@@ -15,7 +15,7 @@ class OrderController extends AbstractController
         $data_json = $this->loadData('../public/data/dataFeb-2-2017.json');
         $data_ldif = $this->loadData('../public/data/dataFeb-2-2017.ldif');
 
-        $orders = $this->arrayMerge($data_csv, $data_json, $data_ldif);
+        $orders = array_merge($data_csv, $data_json, $data_ldif);
 
         $top30Orders = $this->getTop30Orders($orders);
 
@@ -54,23 +54,22 @@ class OrderController extends AbstractController
         $data = array_map('str_getcsv', file($filename));
 
         $cols = array_splice($data, 0, 1);
-        $result['cols'] = explode('|', $cols[0][0]);
+        $result['cols']= explode('|', $cols[0][0]);
 
         for ($i = 0; $i < count($data); $i++) {
             if (count($data[$i]) > 1) {
-                $data[$i][0] = array_reduce($data[$i], function($carry, $item) {
-                    return $carry.$item;
-                });
+                $data[$i][0] = array_reduce($data[$i], fn($carry, $item) => $carry.$item);
                 array_splice($data[$i], 1 , count($data[$i]));
             }
             $result['data'][$i]  = explode('|', $data[$i][0]);
         }
 
-        return $result;
+        return $this->transformArray($result);
     }
 
     function convertArrJson($filename) {
-        return json_decode(file_get_contents($filename), true);
+        $result = json_decode(file_get_contents($filename), true);
+        return $this->transformArray($result);
     }
 
     function convertArrLdif($filename) {
@@ -87,21 +86,16 @@ class OrderController extends AbstractController
                 $result['data'][$i][$j] = explode(':', $lines[$j])[1];
             }  
         }
-        return $result;
+        return $this->transformArray($result);
     }
 
-    function arrayMerge($arr1, $arr2, $arr3) {
-        $result = [];
-
-        $result['cols'] = $arr1['cols'];
-        $result['data'] = array_merge($arr1['data'], $arr2['data'], $arr3['data']);
-
-        for ($i = 0; $i < count($result['data']); $i++) {
-            for ($j = 0; $j < count($result['data'][$i]); $j++) {
-                $newResult[$i][$result['cols'][$j]] = $result['data'][$i][$j];
+    function transformArray($arr) {
+        for ($i = 0; $i < count($arr['data']); $i++) {
+            for ($j = 0; $j < count($arr['data'][$i]); $j++) {
+                $result[$i][$arr['cols'][$j]] = $arr['data'][$i][$j];
             }
         }
-        return $newResult;
+        return $result;
     }
 
     function getTop30Orders($orders) {
@@ -152,21 +146,21 @@ class OrderController extends AbstractController
 
         function getBigStatus($data) {
             for ($i = 0; $i < count($data); $i++) {
-                $status = $data[$i][3];
+                $status = $data[$i]['Status'];
                 if (empty($statusClients[$status])) {
                     $statusClients[$status] = 1;
                 } else {
                     $statusClients[$status]++;
                 } 
             }
-
+            arsort($statusClients);
             return array_slice($statusClients, 0, 1);
         }
 
-        $bigStatus['CSV'] = getBigStatus($data_csv['data']);
-        $bigStatus['JSON'] = getBigStatus($data_json['data']);
-        $bigStatus['LDIF'] = getBigStatus($data_ldif['data']);
-        // return $bigStatus;
+        $bigStatus['CSV'] = getBigStatus($data_csv);
+        $bigStatus['JSON'] = getBigStatus($data_json);
+        $bigStatus['LDIF'] = getBigStatus($data_ldif);
+
         $resultHTML = [];
         foreach ($bigStatus as $format => $value) {
             foreach ($value as $key => $value2) {
